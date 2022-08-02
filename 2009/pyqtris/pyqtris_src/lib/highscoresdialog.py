@@ -46,10 +46,10 @@ class HighscoresDialog(QDialog):
 if __name__ == "__main__":
     import sys
     import highscores
-    
+
     FILENAME = 'pyqtris_highscores'
     ds = highscores.HighScores(10) 
-    
+
     ds.load_from_file(FILENAME)
 
     app = QApplication(sys.argv)

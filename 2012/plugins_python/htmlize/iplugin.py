@@ -13,9 +13,9 @@ import os
 
 class IPluginRegistry(type):
     plugins = []
-    def __init__(cls, name, bases, attrs):
+    def __init__(self, name, bases, attrs):
         if name != 'IPlugin':
-            IPluginRegistry.plugins.append(cls)
+            IPluginRegistry.plugins.append(self)
 
 
 class IPlugin(object, metaclass=IPluginRegistry):

@@ -77,8 +77,10 @@ class Parser:
         self._get_next_token()
         decl = self._decl()
         if self.cur_token.type != None:
-            self._error('Unexpected token "{}" (at #{})'.format(
-                self.cur_token.val, self.cur_token.pos))
+            self._error(
+                f'Unexpected token "{self.cur_token.val}" (at #{self.cur_token.pos})'
+            )
+
         return decl
 
     def _error(self, msg):
@@ -96,7 +98,7 @@ class Parser:
             if self.cur_token is None:
                 self.cur_token = lexer.Token(None, None, None)
         except lexer.LexerError as e:
-            self._error('Lexer error at position {}: {}'.format(e.pos, e))
+            self._error(f'Lexer error at position {e.pos}: {e}')
 
     def _match(self, type):
         """ The 'match' primitive of RD parsers.
@@ -110,8 +112,7 @@ class Parser:
             self._get_next_token()
             return val
         else:
-            self._error('Unmatched {} (found {})'.format(type,
-                                                         self.cur_token.type))
+            self._error(f'Unmatched {type} (found {self.cur_token.type})')
 
     def _decl(self):
         name = self._match('ID')
@@ -124,7 +125,7 @@ class Parser:
 
         self._match('=')
         expr = self._expr()
-        if len(argnames) > 0:
+        if argnames:
             return ast.Decl(name, ast.LambdaExpr(argnames, expr))
         else:
             return ast.Decl(name, expr)
@@ -138,13 +139,12 @@ class Parser:
            operators should be nested using parens, e.g. x + (y * z)
         """
         node = self._expr_component()
-        if self.cur_token.type in self.operators:
-            op = self.cur_token.type
-            self._get_next_token()
-            rhs = self._expr_component()
-            return ast.OpExpr(op, node, rhs)
-        else:
+        if self.cur_token.type not in self.operators:
             return node
+        op = self.cur_token.type
+        self._get_next_token()
+        rhs = self._expr_component()
+        return ast.OpExpr(op, node, rhs)
 
     def _expr_component(self):
         """Parse an expr component (components can be separated by an operator).
@@ -173,7 +173,7 @@ class Parser:
         elif self.cur_token.type == 'LAMBDA':
             return self._lambda()
         else:
-            self._error("Don't support {} yet".format(curtok.type))
+            self._error(f"Don't support {curtok.type} yet")
 
     def _ifexpr(self):
         self._match('IF')
@@ -192,7 +192,7 @@ class Parser:
             argnames.append(self.cur_token.val)
             self._get_next_token()
 
-        if len(argnames) < 1:
+        if not argnames:
             self._error('Expected non-empty argument list for lambda')
         self._match('ARROW')
         expr = self._expr()
@@ -205,10 +205,7 @@ class Parser:
             args.append(self._expr())
             if self.cur_token.type == ',':
                 self._get_next_token()
-            elif self.cur_token.type == ')':
-                pass # the loop will break
-            else:
-                self._error("Unexpected {} in application".format(
-                    self.cur_token.val))
+            elif self.cur_token.type != ')':
+                self._error(f"Unexpected {self.cur_token.val} in application")
         self._match(')')
         return ast.AppExpr(ast.Identifier(name), args)

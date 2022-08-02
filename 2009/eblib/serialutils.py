@@ -15,9 +15,7 @@ def full_port_name(portname):
         Serial class.
     """
     m = re.match('^COM(\d+)$', portname)
-    if m and int(m.group(1)) < 10:
-        return portname    
-    return '\\\\.\\' + portname    
+    return portname if m and int(m[1]) < 10 else '\\\\.\\' + portname    
     
 
 def enumerate_serial_ports():

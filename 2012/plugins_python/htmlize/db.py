@@ -31,9 +31,6 @@ class DB(object):
         return self.posts[id]
 
     def get_post_by_title(self, title):
-        # In a realistic implementation this would probably be indexes if
-        # frequent access by title is required.
-        for id, post in self.posts.items():
-            if post.title == title:
-                return post
-        return None
+        return next(
+            (post for id, post in self.posts.items() if post.title == title), None
+        )

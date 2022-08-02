@@ -181,10 +181,10 @@ def test_main():
     TIMEOUT = 0.5 + (args.num_clients - 1) * args.timeout_bump
 
     for i in range(args.loop):
-        logging.info('** Test iteration {}'.format(i))
+        logging.info(f'** Test iteration {i}')
         client_iter = itertools.cycle([client0, client1, client2, client3])
         threads = []
-        for i in range(args.num_clients):
+        for _ in range(args.num_clients):
             tester_thread = threading.Thread(
                     target=client_thread_runner,
                     args=(next(client_iter), args.server_port, TIMEOUT))

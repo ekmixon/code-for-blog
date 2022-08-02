@@ -38,27 +38,25 @@ class TestBot(irc.IRCClient):
 
         channel has the starting character intact.
         """
-        log.msg("[I have joined %s]" % channel)
+        log.msg(f"[I have joined {channel}]")
         self.msg(channel, "user1: bonbon")
 
     def privmsg(self, user, channel, msg):
         """Called when I have a message from a user to me or a channel."""
         user = user.split('!', 1)[0]
-        log.msg("<%s> %s" % (user, msg))
+        log.msg(f"<{user}> {msg}")
 
         # Check to see if they're sending me a private message
         if channel == self.nickname:
             self.msg(user, 'Thanks for the private message')
-        else:
-            # Otherwise check to see if it is a message directed at me
-            if msg.startswith(self.nickname + ":"):
-                msg = "%s: I am a bot" % user
-                self.msg(channel, msg)
-                log.msg("<%s> %s" % (self.nickname, msg))
+        elif msg.startswith(f"{self.nickname}:"):
+            msg = f"{user}: I am a bot"
+            self.msg(channel, msg)
+            log.msg(f"<{self.nickname}> {msg}")
 
     def lineReceived(self, line):
         """Low level LineReceiver callback, used for debugging..."""
-        log.msg('>> %s' % line)
+        log.msg(f'>> {line}')
         # Twisted's classes are old-style, so no super(), oh my...
         irc.IRCClient.lineReceived(self, line)
 

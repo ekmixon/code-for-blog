@@ -86,12 +86,13 @@ class Visualizer(object):
         self.path = list(pf.compute_path(self.start_pos, self.goal_pos))
         dt = time.clock() - t
 
-        if self.path == []:
-            self.msg1 = "No path found"
-        else:
-            self.msg1 = "Found path (length %d)" % len(self.path)
+        self.msg1 = (
+            "Found path (length %d)" % len(self.path)
+            if self.path
+            else "No path found"
+        )
 
-        self.msg2 = "Elapsed: %s seconds" % dt
+        self.msg2 = f"Elapsed: {dt} seconds"
         self.path_valid = True
 
     def _draw_grid(self, field):

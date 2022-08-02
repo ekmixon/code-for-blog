@@ -83,10 +83,7 @@ def send_count_values(sock):
 
 
 if __name__ == '__main__':
-    port = 4050
-    if len(sys.argv) >= 2:
-        port = int(sys.argv[1])
-
+    port = int(sys.argv[1]) if len(sys.argv) >= 2 else 4050
     sockobj = make_socket(port)
 
     print(send_set_value(sockobj, "key2", "djuli"))

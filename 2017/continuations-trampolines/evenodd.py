@@ -5,31 +5,19 @@
 
 
 def is_even(n):
-    if n == 0:
-        return True
-    else:
-        return is_odd(n - 1)
+    return True if n == 0 else is_odd(n - 1)
 
 
 def is_odd(n):
-    if n == 0:
-        return False
-    else:
-        return is_even(n - 1)
+    return False if n == 0 else is_even(n - 1)
 
 
 def is_even_thunked(n):
-    if n == 0:
-        return True
-    else:
-        return lambda: is_odd_thunked(n - 1)
+    return True if n == 0 else (lambda: is_odd_thunked(n - 1))
 
 
 def is_odd_thunked(n):
-    if n == 0:
-        return False
-    else:
-        return lambda: is_even_thunked(n - 1)
+    return False if n == 0 else (lambda: is_even_thunked(n - 1))
 
 
 def trampoline(f, *args):

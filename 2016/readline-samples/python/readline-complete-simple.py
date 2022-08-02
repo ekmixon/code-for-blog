@@ -12,8 +12,9 @@ def make_completer(vocabulary):
         # A space is added to the completion since the Python readline doesn't
         # do this on its own. When a word is fully completed we want to mimic
         # the default readline library behavior of adding a space after it.
-        results = [x + ' ' for x in vocabulary if x.startswith(text)] + [None]
+        results = [f'{x} ' for x in vocabulary if x.startswith(text)] + [None]
         return results[state]
+
     return custom_complete
 
 def main():

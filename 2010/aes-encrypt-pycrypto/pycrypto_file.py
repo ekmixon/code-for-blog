@@ -28,7 +28,7 @@ def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
             chunksize must be divisible by 16.
     """
     if not out_filename:
-        out_filename = in_filename + '.enc'
+        out_filename = f'{in_filename}.enc'
 
     iv = os.urandom(16)
     encryptor = AES.new(key, AES.MODE_CBC, iv)
@@ -88,10 +88,10 @@ if __name__ == "__main__":
     key = b'1' * 32
 
     if args.encrypt:
-        ofname = encrypt_file(key, infile, out_filename=infile+'.enc')
+        ofname = encrypt_file(key, infile, out_filename=f'{infile}.enc')
         print('Encrypted to', ofname)
     elif args.decrypt:
-        ofname = decrypt_file(key, infile, out_filename=infile+'.dec')
+        ofname = decrypt_file(key, infile, out_filename=f'{infile}.dec')
         print('Decrypted to', ofname)
     else:
         argparser.print_help()

@@ -78,11 +78,12 @@ def make_server_manager(port, authkey):
 
     manager = JobQueueManager(address=('', port), authkey=authkey)
     manager.start()
-    print('Server started at port %s' % port)
+    print(f'Server started at port {port}')
     return manager
 
 
 def make_client_manager(ip, port, authkey):
+
     class ServerQueueManager(SyncManager):
         pass
 
@@ -92,7 +93,7 @@ def make_client_manager(ip, port, authkey):
     manager = ServerQueueManager(address=(ip, port), authkey=authkey)
     manager.connect()
 
-    print('Client connected to %s:%s' % (ip, port))
+    print(f'Client connected to {ip}:{port}')
     return manager
 
 
@@ -101,17 +102,17 @@ def factorizer_worker(job_q, result_q):
     while True:
         try:
             job = job_q.get_nowait()
-            print('%s got %s nums...' % (myname, len(job)))
+            print(f'{myname} got {len(job)} nums...')
             outdict = {n: factorize_naive(n) for n in job}
             result_q.put(outdict)
-            print('  %s done' % myname)
+            print(f'  {myname} done')
         except queue.Empty:
             return
 
 
 def mp_factorizer(shared_job_q, shared_result_q, nprocs):
     procs = []
-    for i in range(nprocs):
+    for _ in range(nprocs):
         p = multiprocessing.Process(
                 target=factorizer_worker,
                 args=(shared_job_q, shared_result_q))
@@ -124,8 +125,7 @@ def mp_factorizer(shared_job_q, shared_result_q, nprocs):
 
 def make_nums(N):
     nums = [999999999999]
-    for i in range(N):
-        nums.append(nums[-1] + 2)
+    nums.extend(nums[-1] + 2 for _ in range(N))
     return nums
 
 
@@ -145,13 +145,13 @@ def runserver():
     resultdict = {}
     while numresults < N:
         outdict = shared_result_q.get()
-        resultdict.update(outdict)
+        resultdict |= outdict
         numresults += len(outdict)
 
     for num, factors in iteritems(resultdict):
         product = reduce(lambda a, b: a * b, factors, 1)
         if num != product:
-            assert False, "Verification failed for number %s" % num
+            assert False, f"Verification failed for number {num}"
 
     print('--- DONE ---')
     time.sleep(2)

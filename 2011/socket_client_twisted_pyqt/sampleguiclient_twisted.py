@@ -107,16 +107,16 @@ class SampleGUIClientWindow(QMainWindow):
     
     def on_client_connect_fail(self, reason):
         # reason is a twisted.python.failure.Failure  object
-        self.log('Connection failed: %s' % reason.getErrorMessage())
+        self.log(f'Connection failed: {reason.getErrorMessage()}')
         
     def on_client_receive(self, msg):
-        self.log('Client reply: %s' % msg)
+        self.log(f'Client reply: {msg}')
         self.log('Disconnecting...')
         self.connection.disconnect()
         
     def log(self, msg):
         timestamp = '[%010.3f]' % time.clock()
-        self.log_widget.append(timestamp + ' ' + str(msg))
+        self.log_widget.append(f'{timestamp} {str(msg)}')
 
     def closeEvent(self, e):
         self.reactor.stop()

@@ -40,7 +40,7 @@ for k, v in model.items():
 print('Sampling...')
 state = random.choice(list(model))
 out = list(state)
-for i in range(400):
+for _ in range(400):
     out.extend(random.choices(list(model[state]), model[state].values()))
     state = state[1:] + out[-1]
 print(''.join(out))

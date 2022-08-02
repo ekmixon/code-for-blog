@@ -223,7 +223,7 @@ class GraphFrame(wx.Frame):
         # xmax.
         #
         if self.xmax_control.is_auto():
-            xmax = len(self.data) if len(self.data) > 50 else 50
+            xmax = max(len(self.data), 50)
         else:
             xmax = int(self.xmax_control.manual_value())
 
@@ -301,7 +301,7 @@ class GraphFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.canvas.print_figure(path, dpi=self.dpi)
-            self.flash_status_message("Saved to %s" % path)
+            self.flash_status_message(f"Saved to {path}")
 
     def on_redraw_timer(self, event):
         # if paused do not add data, but still redraw the plot

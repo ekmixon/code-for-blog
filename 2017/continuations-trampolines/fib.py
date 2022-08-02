@@ -7,10 +7,7 @@ import tracing
 
 
 def fib_rec(n):
-    if n < 2:
-        return 1
-    else:
-        return fib_rec(n - 1) + fib_rec(n - 2)
+    return 1 if n < 2 else fib_rec(n - 1) + fib_rec(n - 2)
 
 
 def fib_almost_tail(n, result=1):
@@ -21,10 +18,7 @@ def fib_almost_tail(n, result=1):
 
 
 def fib_tail(n, accum1=1, accum2=1):
-    if n < 2:
-        return accum1
-    else:
-        return fib_tail(n - 1, accum1 + accum2, accum1)
+    return accum1 if n < 2 else fib_tail(n - 1, accum1 + accum2, accum1)
 
 
 def fib_iterative(n):

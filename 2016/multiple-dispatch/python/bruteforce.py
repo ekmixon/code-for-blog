@@ -18,12 +18,12 @@ class Triangle(Shape): pass
 
 def intersect(s1, s2):
     if isinstance(s1, Rectangle) and isinstance(s2, Ellipse):
-        print('Rectangle x Ellipse [names s1=%s, s2=%s]' % (s1.name, s2.name))
+        print(f'Rectangle x Ellipse [names s1={s1.name}, s2={s2.name}]')
     elif isinstance(s1, Rectangle) and isinstance(s2, Rectangle):
-        print('Rectangle x Rectangle [names s1=%s, s2=%s]' % (s1.name, s2.name))
+        print(f'Rectangle x Rectangle [names s1={s1.name}, s2={s2.name}]')
     else:
         # Generic shape intersection.
-        print('Shape x Shape [names s1=%s, s2=%s]' % (s1.name, s2.name))
+        print(f'Shape x Shape [names s1={s1.name}, s2={s2.name}]')
 
 
 if __name__ == '__main__':

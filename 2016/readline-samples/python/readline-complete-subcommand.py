@@ -21,8 +21,10 @@ def make_subcommand_completer(commands):
             parts.append('')
 
         if len(parts) <= 1:
-            matches = [w + ' ' for w in commands.keys()
-                               if w.startswith(text)] + [None]
+            matches = [
+                f'{w} ' for w in commands.keys() if w.startswith(text)
+            ] + [None]
+
             return matches[state]
         elif len(parts) >= 2:
             command = parts[0]
@@ -30,11 +32,16 @@ def make_subcommand_completer(commands):
             if command == 'file':
                 # Treat 'file' specially, by looking for matching files in the
                 # current directory.
-                matches = [w + ' ' for w in glob.glob(text + '*')] + [None]
+                matches = [f'{w} ' for w in glob.glob(f'{text}*')] + [None]
             else:
-                matches = [w + ' ' for w in commands[command]
-                                   if w.startswith(parts[1])] + [None]
+                matches = [
+                    f'{w} '
+                    for w in commands[command]
+                    if w.startswith(parts[1])
+                ] + [None]
+
             return matches[state]
+
     return custom_complete
 
 def main():

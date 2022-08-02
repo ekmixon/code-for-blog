@@ -16,4 +16,4 @@ class TtFormatter(IPlugin):
         return self._tt_hook if role_name == 'tt' else None
 
     def _tt_hook(self, contents):
-        return '<tt>' + contents + '</tt>'
+        return f'<tt>{contents}</tt>'

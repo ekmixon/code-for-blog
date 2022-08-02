@@ -69,25 +69,20 @@ class GoogleApiSearch(object):
                     'start': start,
                 }            
         )
-        
+
         base = 'http://ajax.googleapis.com/ajax/services/search/web?'
         query_url = base + query
-        
-        logging.info('Executing: ' + query_url)
-        
+
+        logging.info(f'Executing: {query_url}')
+
         results_json = urllib.urlopen(query_url).read()
         results_data = demjson.decode(
                         results_json, encoding='utf8')
-    
+
         return results_data['responseData']
     
     def _get_result_urls(self, result_data):
-        urls = []
-        
-        for hit in result_data['results']:
-            urls.append(urllib.unquote(hit['url']))
-        
-        return urls
+        return [urllib.unquote(hit['url']) for hit in result_data['results']]
 
 
 if __name__ == "__main__":

@@ -72,11 +72,10 @@ class TemplateLexer(object):
         """ Consume current char if it's in validset, and return True.
             Otherwise don't consume it, and return False.
         """
-        if self._curchar() in validset:
-            self.pos += 1
-            return True
-        else:
+        if self._curchar() not in validset:
             return False
+        self.pos += 1
+        return True
 
     def _accept_run(self, validset):
         """ Consume chars as long as they're in validset (or until EOF).
@@ -154,7 +153,6 @@ class TemplateLexer(object):
 
         # Reached EOF
         raise LexerError('Unterminated action')
-        return None
 
     def _lex_number(self):
         # Optional sign before the number

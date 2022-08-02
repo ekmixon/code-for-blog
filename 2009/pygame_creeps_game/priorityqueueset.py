@@ -67,7 +67,7 @@ class PriorityQueueSet(object):
 
             Returns True iff the item was added or updated.
         """
-        if not item in self.set:
+        if item not in self.set:
             self.set[item] = item
             heapq.heappush(self.heap, item)
             return True
@@ -131,6 +131,9 @@ if __name__ == "__main__":
             self.assertRaises(IndexError, pqs.pop_smallest)
 
         def test_hashable(self):
+
+
+
             class Node(object):
                 def __init__(self, value, cost):
                     self.value = value
@@ -146,7 +149,8 @@ if __name__ == "__main__":
                     return hash(self.value)
 
                 def __repr__(self):
-                    return "^%s&%s^" % (self.value, self.cost)
+                    return f"^{self.value}&{self.cost}^"
+
 
             pqs = PriorityQueueSet()
             pqs.add(Node('five', 5))

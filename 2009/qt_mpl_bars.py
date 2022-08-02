@@ -39,13 +39,12 @@ class AppForm(QMainWindow):
 
     def save_plot(self):
         file_choices = "PNG (*.png)|*.png"
-        
-        path = unicode(QFileDialog.getSaveFileName(self, 
-                        'Save file', '', 
-                        file_choices))
-        if path:
+
+        if path := unicode(
+            QFileDialog.getSaveFileName(self, 'Save file', '', file_choices)
+        ):
             self.canvas.print_figure(path, dpi=self.dpi)
-            self.statusBar().showMessage('Saved to %s' % path, 2000)
+            self.statusBar().showMessage(f'Saved to {path}', 2000)
     
     def on_about(self):
         msg = """ A demo of using PyQt with matplotlib:
@@ -194,7 +193,7 @@ class AppForm(QMainWindow):
                         signal="triggered()"):
         action = QAction(text, self)
         if icon is not None:
-            action.setIcon(QIcon(":/%s.png" % icon))
+            action.setIcon(QIcon(f":/{icon}.png"))
         if shortcut is not None:
             action.setShortcut(shortcut)
         if tip is not None:

@@ -137,20 +137,20 @@ class QTReactor(PosixReactorBase):
             self._ownApp=False
         self._blockApp = None
         self._readWriteQ=[]
-        
+
         """ some debugging instrumentation """
         self._doSomethingCount=0
-        
+
         PosixReactorBase.__init__(self)
 
     def addReader(self, reader):
-        if not reader in self._reads:
+        if reader not in self._reads:
             self._reads[reader] = TwistedSocketNotifier(self, reader,
                                                        QSocketNotifier.Read)
 
 
     def addWriter(self, writer):
-        if not writer in self._writes:
+        if writer not in self._writes:
             self._writes[writer] = TwistedSocketNotifier(self, writer,
                                                         QSocketNotifier.Write)
 
@@ -217,10 +217,7 @@ class QTReactor(PosixReactorBase):
         
     def run(self, installSignalHandlers=True):
         try:
-            if self._ownApp:
-                self._blockApp=self.qApp
-            else:
-                self._blockApp = fakeApplication()
+            self._blockApp = self.qApp if self._ownApp else fakeApplication()
             self.runReturn(installSignalHandlers)
             self._blockApp.exec_()
         finally:
@@ -235,8 +232,7 @@ class QTReactor(PosixReactorBase):
         self._doSomethingCount += 1
         self.runUntilCurrent()
         t = self.timeout()
-        if t is None: t=0.1
-        else: t = min(t,0.1)
+        t = 0.1 if t is None else min(t,0.1)
         self._timer.setInterval(t*1010)
         self.qApp.processEvents() # could change interval
         self._timer.start()

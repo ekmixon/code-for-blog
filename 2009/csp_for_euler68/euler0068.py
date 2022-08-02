@@ -15,15 +15,15 @@ def stringrep(asgn):
         if asgn[gr[0]] < start_outer:
             start_outer = asgn[gr[0]]
             start_group = i
-    
+
     s = ''
     for i in xrange(start_group, start_group + len(groups)):
         ngroup = i % len(groups)
         #~ print ngroup
-        
+
         for idx in groups[ngroup]:
             s += str(asgn[idx])
-    
+
     return len(s), s
         
     

@@ -21,12 +21,10 @@ class TetrisBoard(object):
     def __init__(self, nrows, ncols):
         self.nrows = nrows
         self.ncols = ncols
-        self.board = []
         self.fig = None
         self.figcenter = None
-        
-        for i in range(nrows):
-            self.board.append([0] * ncols)
+
+        self.board = [[0] * ncols for _ in range(nrows)]
     
     def reset_board(self, board):
         """ Resets the internal board to the given one. This 
@@ -122,25 +120,24 @@ class TetrisBoard(object):
         # Turn the active figure into a bunch of inactive blocks
         #
         self.board = self.board_with_active_figure()
-        
+
         # Invalidate the active figure, its role is finished
         #
         self.fig = None
         self.figcenter = None
-        
+
         # Now, run over the rows of the board from the top down.
         # Find completed rows, remove them, and shift the rows
         # above them down
         #
-        completed_rows = []
-        
-        for nrow in range(self.nrows):
-            if self._row_is_completed(nrow):
-                completed_rows.append(nrow)
-        
+        completed_rows = [
+            nrow for nrow in range(self.nrows) if self._row_is_completed(nrow)
+        ]
+
+
         for completed_row in completed_rows:
             self._remove_completed_row(completed_row)
-        
+
         return completed_rows
     
     def print_in_ascii(self):
@@ -225,10 +222,7 @@ class TetrisBoard(object):
         """ Is this row on the board "completed", i.e. full of
             blocks ?
         """
-        for ncol in range(self.ncols):
-            if self.board[nrow][ncol] == 0: return False
-        
-        return True
+        return all(self.board[nrow][ncol] != 0 for ncol in range(self.ncols))
         
     def _remove_completed_row(self, nrow):
         """ Removes the given row from the board, shifting all the
@@ -296,14 +290,11 @@ class Figure(object):
         """
         if not self.rotatable:
             return
-        
+
         new_coords = []
-        
+
         for (row, col) in self.coords:
-            if clockwise:
-                row, col = col, -row
-            else:
-                row, col = -col, row
+            row, col = (col, -row) if clockwise else (-col, row)
             new_coords.append((row, col))
             self.coords = new_coords
 
@@ -321,21 +312,17 @@ class Figure(object):
         # Build 9x9 field, assuming it's enough for all figures.
         # The figure's center is at the middle.
         #
-        field = []
-        
-        for col in range(9): field.append([0] * 9)
-        
+        field = [[0] * 9 for _ in range(9)]
+
         for (col, row) in self.coords:
             field[4 + col][4 + row] = 1
-        
+
         for col in range(9):
             for row in range(9):
                 if field[col][row] == 1:
                     char = 'O' if (row, col) == (4, 4) else 'o'
                 else:
                     char = '*' if (row, col) == (4, 4) else '.'
-                print char,
-            print ""
 
     def _compute_min_max_offsets(self):
         self.maxrow = self.maxcol = -99

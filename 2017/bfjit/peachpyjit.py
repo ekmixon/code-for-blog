@@ -50,20 +50,26 @@ def peachpyjit(bf_file, verbose=False):
     memptr = peachpy.Argument(peachpy.ptr(peachpy.uint8_t))
 
     with peachpy.x86_64.Function("ppjit",
-                                 [memptr],
-                                 result_type=None) as asm_function:
+                                     [memptr],
+                                     result_type=None) as asm_function:
         # Use r13 as our data pointer; initially it points at the memory buffer
         # passed into the JITed function.
         dataptr = peachpy.x86_64.r13
         peachpy.x86_64.LOAD.ARGUMENT(dataptr, memptr)
 
         for pc, instr in enumerate(parse_bf_program(bf_file), start=1):
-            if instr == '>':
-                peachpy.x86_64.ADD(dataptr, 1)
-            elif instr == '<':
-                peachpy.x86_64.SUB(dataptr, 1)
-            elif instr == '+':
+            if instr == '+':
                 peachpy.x86_64.ADD([dataptr], 1)
+            elif instr == ',':
+                # Invoke the READ syscall (rax=0) with stdin (rdi=0).
+                if sys.platform == "darwin":
+                    peachpy.x86_64.MOV(peachpy.x86_64.rax, 0x2000003)
+                else:
+                    peachpy.x86_64.MOV(peachpy.x86_64.rax, 0)
+                peachpy.x86_64.MOV(peachpy.x86_64.rdi, 0)
+                peachpy.x86_64.MOV(peachpy.x86_64.rsi, dataptr)
+                peachpy.x86_64.MOV(peachpy.x86_64.rdx, 1)
+                peachpy.x86_64.SYSCALL()
             elif instr == '-':
                 peachpy.x86_64.SUB([dataptr], 1)
             elif instr == '.':
@@ -76,16 +82,10 @@ def peachpyjit(bf_file, verbose=False):
                 peachpy.x86_64.MOV(peachpy.x86_64.rsi, dataptr)
                 peachpy.x86_64.MOV(peachpy.x86_64.rdx, 1)
                 peachpy.x86_64.SYSCALL()
-            elif instr == ',':
-                # Invoke the READ syscall (rax=0) with stdin (rdi=0).
-                if sys.platform == "darwin":
-                    peachpy.x86_64.MOV(peachpy.x86_64.rax, 0x2000003)
-                else:
-                    peachpy.x86_64.MOV(peachpy.x86_64.rax, 0)
-                peachpy.x86_64.MOV(peachpy.x86_64.rdi, 0)
-                peachpy.x86_64.MOV(peachpy.x86_64.rsi, dataptr)
-                peachpy.x86_64.MOV(peachpy.x86_64.rdx, 1)
-                peachpy.x86_64.SYSCALL()
+            elif instr == '<':
+                peachpy.x86_64.SUB(dataptr, 1)
+            elif instr == '>':
+                peachpy.x86_64.ADD(dataptr, 1)
             elif instr == '[':
                 # Create labels for the loop start and after-loop.
                 loop_start_label = peachpy.x86_64.Label()
@@ -99,7 +99,7 @@ def peachpyjit(bf_file, verbose=False):
                     BracketLabels(loop_start_label, loop_end_label))
             elif instr == ']':
                 if not len(open_bracket_stack):
-                    die('unmatched closing "]" at pc={}'.format(pc))
+                    die(f'unmatched closing "]" at pc={pc}')
                 labels = open_bracket_stack.pop()
                 # Jump back to loop if the current cell is not 0.
                 peachpy.x86_64.CMP([dataptr], 0)
@@ -120,7 +120,7 @@ def peachpyjit(bf_file, verbose=False):
         fname = '/tmp/ppout.bin'
         with open(fname, 'wb') as f:
             f.write(code)
-        print('* Wrote machine code to {}'.format(fname))
+        print(f'* Wrote machine code to {fname}')
 
     # Allocate memory as a ctypes array and initialize it to 0s. Then perform
     # the JIT call.

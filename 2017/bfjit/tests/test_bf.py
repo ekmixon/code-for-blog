@@ -28,7 +28,7 @@ def discover_tests(dir_path):
             testname = os.path.splitext(filename)[0]
             program_path = os.path.join(dir_path, filename)
 
-            params_path = os.path.join(dir_path, testname + '.test')
+            params_path = os.path.join(dir_path, f'{testname}.test')
 
             try:
               params = json.load(open(params_path))
@@ -60,8 +60,12 @@ def run_all_tests(executor_path, flags, tests_dir_path):
     errorcount = 0
 
     for i, test in enumerate(discover_tests(dir_path=tests_dir_path), start=1):
-        print('Running test #{:0>3} {:.<30}'.format(i, '[' + test.name + ']'),
-              end='', flush=True)
+        print(
+            'Running test #{:0>3} {:.<30}'.format(i, f'[{test.name}]'),
+            end='',
+            flush=True,
+        )
+
 
         # Figure out what to feed into stdin and what output to expect; encode
         # them as bytes.
@@ -102,7 +106,7 @@ def run_all_tests(executor_path, flags, tests_dir_path):
     if errorcount == 0:
         print('---- All tests ran OK ----')
     else:
-        print('---- Tests had %s errors ----' % errorcount)
+        print(f'---- Tests had {errorcount} errors ----')
         return False
 
     print('Elapsed: %.4s sec' % (time.time() - starttime,))
@@ -112,7 +116,7 @@ def run_all_tests(executor_path, flags, tests_dir_path):
 if __name__ == '__main__':
     testcases_path = 'tests/testcases'
     if not os.path.exists(testcases_path):
-        print('ERROR: cannot find "{}"'.format(testcases_path))
+        print(f'ERROR: cannot find "{testcases_path}"')
         print('Run me from the main directory!')
         sys.exit(1)
     errors = False

@@ -50,18 +50,16 @@ def parse_term(tokens):
 def parse_factor(tokens):
     tok = tokens.pop(0)
     try:
-        toknum = int(tok)
-        return toknum
+        return int(tok)
     except ValueError:
         pass
-    if tok == '(':
-        exprval = parse_expr(tokens)
-        if tokens[0] != ')':
-            raise RuntimeError('expected matching ")", got', tokens[0])
-        tokens.pop(0)
-        return exprval
-    else:
+    if tok != '(':
         raise RuntimeError('unexpected token', tok)
+    exprval = parse_expr(tokens)
+    if tokens[0] != ')':
+        raise RuntimeError('expected matching ")", got', tokens[0])
+    tokens.pop(0)
+    return exprval
 
 
 def test_parser(parserfunc):

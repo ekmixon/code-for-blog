@@ -122,5 +122,4 @@ class ProtocolWrapper(object):
         return ProtocolStatus.MSG_OK
 
 
-if __name__ == '__main__':
-    pass
+pass

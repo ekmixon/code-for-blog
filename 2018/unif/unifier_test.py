@@ -151,7 +151,7 @@ class TestApplyUnifier(unittest.TestCase):
         """
         subst = unify(parse_term(s1), parse_term(s2), {})
         if subst is None:
-            self.fail('expected {} and {} to unify'.format(s1, s2))
+            self.fail(f'expected {s1} and {s2} to unify')
         unified_s1 = apply_unifier(parse_term(s1), subst)
         unified_s2 = apply_unifier(parse_term(s2), subst)
         self.assertEqual(unified_s1, unified_s2)

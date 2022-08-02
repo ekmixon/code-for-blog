@@ -5,11 +5,7 @@
 # This code is in the public domain.
 
 def process(s):
-    result = 0
-    for i in s:
-        if i % 2 == 0:
-            result += i + 1
-    return result
+    return sum(i + 1 for i in s if i % 2 == 0)
 
 
 if __name__ == '__main__':

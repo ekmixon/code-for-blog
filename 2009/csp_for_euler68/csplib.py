@@ -98,10 +98,10 @@ class CSP(object):
         """ Checks that the assignment is consistent for this CSP.
             Returns True if it is, False if there are conflicts.
         """
-        for var, val in assignment.iteritems():
-            if self._has_conflicts(var, val, assignment):
-                return False
-        return True
+        return not any(
+            self._has_conflicts(var, val, assignment)
+            for var, val in assignment.iteritems()
+        )
     
     def solve_search(   self, init_assign=None, 
                         mcv=False, lcv=False):
@@ -206,10 +206,10 @@ class CSP(object):
             in the assignment, it's replaced.
         """
         assignment[var] = val
-        
+
         self.nassigns += 1
-        self._log(20, 'Assigning %s = %s' % (var, val))
-    
+        self._log(20, f'Assigning {var} = {val}')
+
         # Propagate constraints
         self._forward_check(var, val, assignment)
         
@@ -217,8 +217,8 @@ class CSP(object):
         """ Unassign var from the assignment. 
         """
         if var in assignment:
-            self._log(20, 'Backtracking %s = %s' % (var, assignment[var]))
-            
+            self._log(20, f'Backtracking {var} = {assignment[var]}')
+
             # Restore the domains pruned from the previous value
             # tried for var.
             #
@@ -265,7 +265,7 @@ class CSP(object):
                         self.global_constraint({var: val, B: b}, assignment)):
                     self.curr_domains[B].remove(b)
                     self.pruned[var].append((B, b))
-        
-        self._log(10, 'FC: %s=%s, %s' % (var, val, assignment))
-        self._log(10, '  : %s' % self.curr_domains)
+
+        self._log(10, f'FC: {var}={val}, {assignment}')
+        self._log(10, f'  : {self.curr_domains}')
 

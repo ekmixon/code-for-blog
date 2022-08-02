@@ -137,7 +137,7 @@ class PathFinder(object):
             return hash(self.coord)
 
         def __str__(self):
-            return 'N(%s) -> g: %s, f: %s' % (self.coord, self.g_cost, self.f_cost)
+            return f'N({self.coord}) -> g: {self.g_cost}, f: {self.f_cost}'
 
         def __repr__(self):
             return self.__str__()

@@ -27,9 +27,9 @@ class HighScores(object):
         """
         self.scorelist.append((name, score))
         self.scorelist.sort(reverse = True, cmp = lambda a, b: cmp(a[1], b[1]))
-        
+
         if len(self.scorelist) > self.max_length:
-            self.scorelist = self.scorelist[0:-1]
+            self.scorelist = self.scorelist[:-1]
  
     def get_list(self):
         """ Returns the high-scores list.
@@ -45,27 +45,25 @@ class HighScores(object):
     def save_to_file(self, filename):
         """ Saves the high-scores list to a file.
         """
-        file = open(filename, 'w')
-        str = base64.encodestring(pickle.dumps(self.scorelist))
-        file.write(str)
-        file.close()
+        with open(filename, 'w') as file:
+            str = base64.encodestring(pickle.dumps(self.scorelist))
+            file.write(str)
 
     def load_from_file(self, filename):
         """ Loads the high-scores list from a file.
         """
-        file = open(filename, 'r')
-        str = base64.decodestring(file.read())
-        self.scorelist = pickle.loads(str)
-        file.close()
+        with open(filename, 'r') as file:
+            str = base64.decodestring(file.read())
+            self.scorelist = pickle.loads(str)
 
 
 if __name__ == "__main__":
     FILENAME = 'pyqtris_highscores'
     ds = HighScores(10) 
-    
+
     #~ ds.load_from_file(FILENAME)
     #~ ds.printme()
-        
+
     ds.add_score('joe', 15)
     ds.add_score('qjoe', 15)
     ds.add_score('nexus', 155)

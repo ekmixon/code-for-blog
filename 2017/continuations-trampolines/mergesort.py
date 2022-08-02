@@ -7,9 +7,8 @@ def merge_sort(lst):
     n = len(lst)
     if n <= 1:
         return lst
-    else:
-        mid = int(n / 2)
-        return merge(merge_sort(lst[:mid]), merge_sort(lst[mid:]))
+    mid = n // 2
+    return merge(merge_sort(lst[:mid]), merge_sort(lst[mid:]))
 
 
 def merge(lst1, lst2):
@@ -48,12 +47,11 @@ def merge_sort_cps(lst, cont):
     n = len(lst)
     if n <= 1:
         return cont(lst)
-    else:
-        mid = int(n / 2)
-        return merge_sort_cps(
-                lst[:mid],
-                lambda v1: merge_sort_cps(lst[mid:],
-                                          lambda v2: cont(merge(v1, v2))))
+    mid = n // 2
+    return merge_sort_cps(
+            lst[:mid],
+            lambda v1: merge_sort_cps(lst[mid:],
+                                      lambda v2: cont(merge(v1, v2))))
 
 
 if __name__ == '__main__':

@@ -215,63 +215,62 @@ class LibCollect(object):
         self.site_packages = os.path.normcase(distutils.sysconfig.get_python_lib(standard_lib=False))
         self.standard_lib = os.path.normcase(distutils.sysconfig.get_python_lib(standard_lib=True))
         self.sys_prefix = os.path.normcase(sys.prefix)
-        
+
         self.verbose = verbose
         self.log("\nLibCollect v%s running in verbose mode\n" % version)
-        
+
         # Initial preparation to create the lib directory
         #
         if os.path.exists(targetdir): 
             self.log("Directory '%s' exists. Removing it." % targetdir)
             shutil.rmtree(targetdir)
-            
+
         libdir = os.path.join(targetdir, distlib)
         self.log("Creating path '%s'" % libdir)
         mkpath(libdir)
-        
+
         # Find the modules we need to collect
         # 
         modules = self.find_modules(scriptname, excludes, verbose)
-    
+
         self.log("Collecting modules into '%s'" % libdir)
         # Collect the modules in the lib directory
         #
         for modname, modtype, modfile in modules:
             modname_components = modname.split('.')
-            
+
             if modtype == 'm':
                 if len(modname_components) > 1:
-                    new_path = os.path.join(libdir, *modname_components[0:-1])
+                    new_path = os.path.join(libdir, *modname_components[:-1])
                 else:
                     new_path = libdir
             elif modtype == 'P':
                 new_path = os.path.join(libdir, *modname_components)
             else:
                 assert False
-            
+
             mkpath(new_path)
             shutil.copy(modfile, new_path)
-        
+
         os.chdir(targetdir)
-        
+
         if zip_lib:
-            self.log("Zipping directory '%s' into '%s'" % (libdir, libdir + '.zip'))
+            self.log("Zipping directory '%s' into '%s'" % (libdir, f'{libdir}.zip'))
             make_zipfile(distlib, distlib)
             self.log("Removing directory '%s'" % libdir)
             shutil.rmtree(distlib)
             path_add = "os.path.join('" + distlib + ".zip', '" + distlib + "')"
         else:
             path_add = "'" + distlib + "'"
-        
+
         # Create the loader script
         #
-        self.log("Writing loader script: %s" % scriptname)
-        loader = open(os.path.basename(scriptname), 'w')
-        loader_name = os.path.splitext(scriptname)[0]
-        loader.write("import os, sys, runpy\n")
-        loader.write("sys.path.insert(0, %s)\n" % path_add)
-        loader.write("runpy.run_module('%s', run_name=\"__main__\", alter_sys=True)\n" % loader_name)
-        loader.close()
+        self.log(f"Writing loader script: {scriptname}")
+        with open(os.path.basename(scriptname), 'w') as loader:
+            loader_name = os.path.splitext(scriptname)[0]
+            loader.write("import os, sys, runpy\n")
+            loader.write("sys.path.insert(0, %s)\n" % path_add)
+            loader.write("runpy.run_module('%s', run_name=\"__main__\", alter_sys=True)\n" % loader_name)
             
     def find_modules(self, scriptname, excludes=[], verbose=False):
         """ Find the modules we'd want to include in the 
@@ -323,12 +322,12 @@ class LibCollect(object):
 
 if __name__ == "__main__":    
     from optparse import OptionParser
-    
+
     usage = "usage: %prog [options] script"
     description = "Collect the script with the libraries it uses into a distribution. See module documentation for more details"
-    
+
     opts = OptionParser(usage=usage, description=description)
-    
+
     #~ opts.add_option("-h", "--help", action="help")
     opts.add_option('-t', '--targetdir', dest='targetdir', 
                     help='place distribution into TARGETDIR')
@@ -338,12 +337,12 @@ if __name__ == "__main__":
                     help='print progress')
     opts.add_option('-e', '--exclude', dest='excludes', action='append',
                     help='exclude library from distribution. You can provide several of thsese')
-    
+
     opts.set_defaults(  targetdir='distrib',
                         zip_lib=True,
                         excludes=[],
                         verbose=False)
-    
+
     (options, args) = opts.parse_args()
 
     if len(args) != 1: 

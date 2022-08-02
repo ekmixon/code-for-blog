@@ -101,9 +101,7 @@ def queens_constraint(A, a, B, b):
         are assigned by columns), or if the queens are not in the
         same row or diagonal
     """
-    if A == B:
-        return True
-    return a != b and A + a != B + b and A - a != B - b
+    return True if A == B else a != b and A + a != B + b and A - a != B - b
 
 
 class NQueensCSP(CSP):
@@ -111,10 +109,7 @@ class NQueensCSP(CSP):
         s = ''
         for row in self.domains:
             for col in self.vars:
-                if assignment[col] == row:
-                    s += '*'
-                else:
-                    s += 'o'
+                s += '*' if assignment[col] == row else 'o'
             s += '\n'
         return s
 
@@ -127,15 +122,15 @@ def make_NQueens_CSP(n):
     """
     # columns
     vars = list(range(n))
-    
+
     # rows
     domains = list(range(n))
-    
+
     neighbors = {}
     for v in vars:
         neighbors[v] = vars[:]
         neighbors[v].remove(v)
-    
+
     return NQueensCSP(
         vars=vars,
         domains=defaultdict(lambda: domains),
@@ -160,16 +155,9 @@ class SudokuCSP(CSP):
                 s += '+-------+-------+-------+\n'
             s += '| '
             for col in range(9):
-                
-                if (row, col) in assignment:
-                    s += str(assignment[(row, col)])
-                else:
-                    s += '_'
-                
-                if col % 3 == 2:
-                    s += ' | '
-                else:
-                    s += ' '
+
+                s += str(assignment[(row, col)]) if (row, col) in assignment else '_'
+                s += ' | ' if col % 3 == 2 else ' '
             s += '\n'
         s += '+-------+-------+-------+\n'
         return s
@@ -186,16 +174,16 @@ def parse_sudoku_assignment(grid):
     """
     digits = re.sub('\s', '', grid)
     assert len(digits) == 81
-    
+
     digit = iter(digits)
-    
+
     asg = {}
     for row in range(9):
         for col in range(9):
             d = int(digit.next())
             if d > 0:
                 asg[(row, col)] = d
-    
+
     return asg
 
 
@@ -210,7 +198,7 @@ def make_sudoku_CSP():
     rows = range(9)
     cols = range(9)
     vars = cross(rows, cols)
-    
+
     # Available values
     domains = defaultdict(lambda: range(1, 10))
 
@@ -218,7 +206,7 @@ def make_sudoku_CSP():
     unitlist = ([cross(rows, [c]) for c in cols] +
                 [cross([r], cols) for r in rows] + 
                 [cross(rs, cs) for rs in triples for cs in triples])
-    
+
     # Neighbors holds sets, but that's fine for CSP - it just 
     # wants 'em to be iterable
     #
@@ -227,7 +215,7 @@ def make_sudoku_CSP():
         for cell in unit:
             neighbors[cell].update(unit)
             neighbors[cell].remove(cell)
-    
+
     return SudokuCSP(
         vars=vars,
         domains=domains,
@@ -246,11 +234,7 @@ class MagicSquareCSP(CSP):
         ns = range(int(math.sqrt(len(self.vars))))
         for row in ns:
             for col in ns:
-                if (row, col) in assignment:
-                    s += str(assignment[(row, col)])
-                else:
-                    s += '_'
-                
+                s += str(assignment[(row, col)]) if (row, col) in assignment else '_'
                 s += ' '
             s += '\n'
         return s
@@ -270,53 +254,51 @@ def make_magic_square_CSP(n):
     rows = range(n)
     cols = range(n)
     vars = cross(rows, cols)
-    
+
     domains = defaultdict(lambda: range(1, n*n + 1))
     magic_sum = n * (n*n + 1) / 2
-    
+
     # All cells are different --> neighbors of one another.
     #
     neighbors = {}
     for v in vars:
         neighbors[v] = vars[:]
         neighbors[v].remove(v)
-    
+
     def check_sum(values):
         s = sum(values)
-        if s > magic_sum:
-            return False
-        return not (len(values) == n and s != magic_sum)
+        return False if s > magic_sum else len(values) != n or s == magic_sum
 
     def sum_constraint(new_asgn, cur_asgn):        
         square = {}
         square.update(new_asgn)
         square.update(cur_asgn)
-        
+
         # Only new assignments can cause conflicts...
         #
         for (vrow, vcol) in new_asgn.iterkeys():
             #~ if check_sum([square.get((vrow, col), 0) for col in cols]) == False:
             if check_sum([square[(vrow, col)] for col in cols if (vrow, col) in square]) == False:
                 return False
-        
+
             #~ if check_sum([square.get((row, vcol), 0) for row in rows]) == False:
             if check_sum([square[(row, vcol)] for row in rows if (row, vcol) in square]) == False:
                 return False
-        
+
             # \ diagonal
             if (    vrow == vcol and
                     check_sum([square[(row, row)] for row in rows if (row, row) in square]) == False):
                 return False
-        
+
             # / diagonal
             if (    vrow == n - 1 - vcol and
                     check_sum([square[(n - 1 - row, row)] 
                         for row in rows 
                             if (n - 1 - row, row) in square]) == False):
                 return False
-        
+
         return True
-    
+
     return MagicSquareCSP(
         vars=vars,
         domains=domains,
@@ -332,8 +314,8 @@ def make_magic_square_CSP(n):
 class Magic3gonCSP(CSP):
     def to_str(self, assignment):
         asgn = defaultdict(lambda: '*')
-        asgn.update(assignment)
-        
+        asgn |= assignment
+
         s = ''
         s += ' %s\n' % asgn[2]
         s += '\n'
@@ -342,7 +324,7 @@ class Magic3gonCSP(CSP):
         s += ' %s  %s  %s\n' % (asgn[3], asgn[5], asgn[6])
         s += '\n'
         s += '%s\n' % asgn[1]
-        
+
         return s
 
 def make_magic_3gon_CSP():
@@ -386,8 +368,8 @@ def make_magic_3gon_CSP():
 class Magic5gonCSP(CSP):
     def to_str(self, assignment):
         asgn = defaultdict(lambda: '*')
-        asgn.update(assignment)
-        
+        asgn |= assignment
+
         s = ''
         s += '  %s    %s\n' % (asgn[2], asgn[9])
         s += '    %s\n' % asgn[5]
@@ -396,7 +378,7 @@ class Magic5gonCSP(CSP):
         s += '   %s %s %s\n' % (asgn[4], asgn[7], asgn[10])
         s += '\n'
         s += '    %s\n' % asgn[6]
-        
+
         return s
 
 def make_magic_5gon_CSP():

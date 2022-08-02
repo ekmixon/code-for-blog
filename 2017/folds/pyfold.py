@@ -5,47 +5,36 @@
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 def sum(seq):
-    if not seq:
-        return 0
-    else:
-        return seq[0] + sum(seq[1:])
+    return seq[0] + sum(seq[1:]) if seq else 0
 
 
 def product(seq):
-    if not seq:
-        return 1
-    else:
-        return seq[0] * product(seq[1:])
+    return seq[0] * product(seq[1:]) if seq else 1
 
 
 def double(seq):
-    if not seq:
-        return []
-    else:
-        return [seq[0] * 2] + double(seq[1:])
+    return [seq[0] * 2] + double(seq[1:]) if seq else []
 
 
 def map(mapf, seq):
-    if not seq:
-        return []
-    else:
-        return [mapf(seq[0])] + map(mapf, seq[1:])
+    return [mapf(seq[0])] + map(mapf, seq[1:]) if seq else []
 
 
 def filter(predicate, seq):
     if not seq:
         return []
-    else:
-        maybeitem = [seq[0]] if predicate(seq[0]) else []
-        return maybeitem + filter(predicate, seq[1:])
+    maybeitem = [seq[0]] if predicate(seq[0]) else []
+    return maybeitem + filter(predicate, seq[1:])
 
 
 def transform(init, mapping, combination, seq):
-    if not seq:
-        return init
-    else:
-        return combination(mapping(seq[0]),
-                           transform(init, mapping, combination, seq[1:]))
+    return (
+        combination(
+            mapping(seq[0]), transform(init, mapping, combination, seq[1:])
+        )
+        if seq
+        else init
+    )
 
 
 def product_with_transform(seq):
@@ -61,10 +50,7 @@ def double_with_transform(seq):
 
 
 def foldr(func, init, seq):
-    if not seq:
-        return init
-    else:
-        return func(seq[0], foldr(func, init, seq[1:]))
+    return func(seq[0], foldr(func, init, seq[1:])) if seq else init
 
 
 def foldrloop(func, init, seq):
@@ -96,10 +82,8 @@ def map_with_foldr(mapf, seq):
 
 def filter_with_foldr(predicate, seq):
     def reducer(seqval, acc):
-        if predicate(seqval):
-            return [seqval] + acc
-        else:
-            return acc
+        return [seqval] + acc if predicate(seqval) else acc
+
     return foldr(reducer, [], seq)
 
 
@@ -108,10 +92,8 @@ def filter_with_foldr(predicate, seq):
 # shouldn't be evaluated after False is found.
 def shortcircuit_with_foldr(seq):
     def reducer(seqval, acc):
-        if not seqval:
-            return False
-        else:
-            return acc
+        return acc if seqval else False
+
     return foldr(reducer, True, seq)
 
 
@@ -120,10 +102,7 @@ def reverse_with_foldr(seq):
 
 
 def foldl(func, init, seq):
-    if not seq:
-        return init
-    else:
-        return foldl(func, func(init, seq[0]), seq[1:])
+    return foldl(func, func(init, seq[0]), seq[1:]) if seq else init
 
 
 def product_with_foldl(seq):

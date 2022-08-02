@@ -94,7 +94,7 @@ class CalcParser(object):
             self._get_next_token()
             return val
         else:
-            self._error('Unmatched %s' % type)
+            self._error(f'Unmatched {type}')
 
     # The toplevel rule of the parser.
     #
@@ -174,10 +174,10 @@ class CalcParser(object):
             try:
                 val = self.var_table[id_name]
             except KeyError:
-                self._error('Unknown identifier `%s`' % id_name)
+                self._error(f'Unknown identifier `{id_name}`')
             return val
         else:
-            self._error('Invalid factor `%s`' % self.cur_token.val)
+            self._error(f'Invalid factor `{self.cur_token.val}`')
 
 
 if __name__ == '__main__':

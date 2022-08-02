@@ -20,7 +20,7 @@ class DrawabaleTetrisBoard(QWidget):
     """
     def __init__(self, parent, nrows, ncols, blocksize):
         super(DrawabaleTetrisBoard, self).__init__(parent)
-        
+
         self.nrows = nrows
         self.ncols = ncols
         self.blocksize = blocksize
@@ -31,7 +31,7 @@ class DrawabaleTetrisBoard(QWidget):
         self.showgrid = True
         self.gridwidth = 2
         self.gridcolor = QColor(204, 204, 204)
-        
+
         # the "sink" is the white border around the actual 
         # tetris grid
         #
@@ -39,13 +39,13 @@ class DrawabaleTetrisBoard(QWidget):
         self.sinkcolor = 'white'
         self.block_border_color = 'black'
         self.bgcolor = QColor(234, 234, 244)
-        
+
         self.setSizePolicy(QSizePolicy(
                             QSizePolicy.Fixed, QSizePolicy.Fixed))
-        
+
         self.width = self.sinkwidth * 2 + ncols * blocksize + (ncols + 1) * self.gridwidth
         self.height = self.sinkwidth * 2 + nrows * blocksize + (nrows + 1) * self.gridwidth
-        
+
         self.board = TetrisBoard(nrows, ncols)
 
     def minimumSizeHint(self):
@@ -203,20 +203,16 @@ class MainTetrisWidget(DrawabaleTetrisBoard):
         state = 'running'
         completed_rows = []
         drop_height = 0
-        
+
         if self.board.move_figure_down():
             state = 'running'
         else:
             completed_rows = self.board.finish_fall()
-            
-            if self.board.spawn_figure(nextfigure):
-                state = 'newfigure'
-            else:
-                state = 'gameover'
-            
+
+            state = 'newfigure' if self.board.spawn_figure(nextfigure) else 'gameover'
         drop_height = self.last_drop_height
         self.last_drop_height = 0
-        
+
         self.update()
         return self.Result(state, completed_rows, drop_height)
 
@@ -277,7 +273,7 @@ class TetrisMainWindow(QMainWindow):
     """
     def __init__(self, parent=None):
         super(TetrisMainWindow, self).__init__(parent)
-        self.setWindowTitle('PyQtris v%s' % pyqtris_version)
+        self.setWindowTitle(f'PyQtris v{pyqtris_version}')
 
         self.setWindowIcon(QIcon(get_icon_pixmap()))
 
@@ -286,12 +282,12 @@ class TetrisMainWindow(QMainWindow):
         self.create_main_frame()
         self.create_menu()
         self.create_status_bar()
-        
+
         self.timer = QTimer()
         self.timer_interval = 1000
         self.connect(self.timer, SIGNAL('timeout()'), self.on_timer)
         self.timer.start(self.timer_interval)
-        
+
         self.init_highscores()
         self.restart_game()
 
@@ -378,41 +374,41 @@ class TetrisMainWindow(QMainWindow):
         self.game_lines = 0
         self.game_score = 0
         self.timer_interval = 1000
-        
+
         self.resume_game()
         self.update_stats()
-        
+
         self.board_widget.restart(self.figurebank.get_random())
         self.preview_figure = self.figurebank.get_random()
         self.preview_widget.set_figure(self.preview_figure)
         self.timer.start(self.timer_interval)
         
     def on_timer(self):
-        if self.state == GameState.running:
-            result = self.board_widget.timer_tick(self.preview_figure)
-            num_rows = len(result.completed_rows)
-            
-            if result.state == 'gameover':
-                self.game_over()
-            elif result.state == 'newfigure':
-                old_line_count = self.game_lines
-                self.game_lines += num_rows
-                score_bonus = result.drop_height + num_rows ** 2 * 30
-                score_bonus = int(score_bonus * (1 + 0.1 * (self.game_level - 1)))
-                self.game_score += score_bonus
-                
-                self.preview_figure = self.figurebank.get_random()
-                self.preview_widget.set_figure(self.preview_figure)
-                
-                if num_rows > 0 and old_line_count % 10 + num_rows >= 10:
-                    self.game_level += 1
-                    self.timer_interval = 1000 - self.game_level * 100
-                    if self.timer_interval < 100:
-                        self.timer_interval = 100
-                    self.timer.stop()
-                    self.timer.start(self.timer_interval)
-            
-            self.update_stats()
+        if self.state != GameState.running:
+            return
+        result = self.board_widget.timer_tick(self.preview_figure)
+        num_rows = len(result.completed_rows)
+
+        if result.state == 'gameover':
+            self.game_over()
+        elif result.state == 'newfigure':
+            old_line_count = self.game_lines
+            self.game_lines += num_rows
+            score_bonus = result.drop_height + num_rows ** 2 * 30
+            score_bonus = int(score_bonus * (1 + 0.1 * (self.game_level - 1)))
+            self.game_score += score_bonus
+
+            self.preview_figure = self.figurebank.get_random()
+            self.preview_widget.set_figure(self.preview_figure)
+
+            if num_rows > 0 and old_line_count % 10 + num_rows >= 10:
+                self.game_level += 1
+                self.timer_interval = 1000 - self.game_level * 100
+                self.timer_interval = max(self.timer_interval, 100)
+                self.timer.stop()
+                self.timer.start(self.timer_interval)
+
+        self.update_stats()
 
     def update_stats(self):
         self.level_text.setText(str(self.game_level))
@@ -551,7 +547,7 @@ class TetrisMainWindow(QMainWindow):
                         signal="triggered()"):
         action = QAction(text, self)
         if icon is not None:
-            action.setIcon(QIcon(":/%s.png" % icon))
+            action.setIcon(QIcon(f":/{icon}.png"))
         if shortcut is not None:
             action.setShortcut(shortcut)
         if tip is not None:

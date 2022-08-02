@@ -50,7 +50,7 @@ class OpExpr(ASTNode):
         self._children = [self.left, self.right]
 
     def __str__(self):
-        return '({} {} {})'.format(self.left, self.op, self.right)
+        return f'({self.left} {self.op} {self.right})'
 
 
 class AppExpr(ASTNode):
@@ -64,8 +64,7 @@ class AppExpr(ASTNode):
         self._children = [self.func, *self.args]
 
     def __str__(self):
-        return 'App({}, [{}])'.format(self.func,
-                                      ', '.join(map(str, self.args)))
+        return f"App({self.func}, [{', '.join(map(str, self.args))}])"
 
 
 class IfExpr(ASTNode):
@@ -77,8 +76,7 @@ class IfExpr(ASTNode):
        self._children = [self.ifexpr, self.thenexpr, self.elseexpr]
 
     def __str__(self):
-        return 'If({}, {}, {})'.format(
-            self.ifexpr, self.thenexpr, self.elseexpr)
+        return f'If({self.ifexpr}, {self.thenexpr}, {self.elseexpr})'
 
 
 class LambdaExpr(ASTNode):
@@ -89,7 +87,7 @@ class LambdaExpr(ASTNode):
         self._children = [self.expr]
 
     def __str__(self):
-        return 'Lambda([{}], {})'.format(', '.join(self.argnames), self.expr)
+        return f"Lambda([{', '.join(self.argnames)}], {self.expr})"
 
     # Used by the type inference algorithm to map discovered types for the
     # arguments of the lambda. Since we list arguments as names (strings) and
@@ -108,5 +106,4 @@ class Decl(ASTNode):
         self._children = [self.expr]
 
     def __str__(self):
-        return 'Decl({}, {})'.format(
-            self.name, self.expr)
+        return f'Decl({self.name}, {self.expr})'

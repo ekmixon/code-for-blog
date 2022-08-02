@@ -7,8 +7,7 @@ import unittest
 
 
 def pyrevgen(seq):
-    for i, elem in enumerate(reversed(seq)):
-        yield i, elem
+    yield from enumerate(reversed(seq))
 
 therevgen = spam.revgen
 
@@ -17,13 +16,13 @@ class Test(unittest.TestCase):
     def test_revgen(self):
         global therevgen
 
-        lst = [(i, e) for i, e in therevgen(['a', 'b', 'c'])]
+        lst = list(therevgen(['a', 'b', 'c']))
         self.assertEqual(lst, [(0, 'c'), (1, 'b'), (2, 'a')])
 
-        lst = [(i, e) for i, e in therevgen(['a'])]
+        lst = list(therevgen(['a']))
         self.assertEqual(lst, [(0, 'a')])
 
-        lst = [(i, e) for i, e in therevgen([])]
+        lst = list(therevgen([]))
         self.assertEqual(lst, [])
 
         gen = therevgen(['a', 'b', 'c'])

@@ -28,7 +28,7 @@ def main():
     try:
         time.sleep(0.2)
 
-        for i in range(4):
+        for _ in range(4):
             resp = urllib.request.urlopen('http://localhost:8070')
             assert b'Directory listing' in resp.read()
             time.sleep(0.1)

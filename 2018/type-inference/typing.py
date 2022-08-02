@@ -44,10 +44,9 @@ class FuncType(Type):
 
     def __str__(self):
         if len(self.argtypes) == 1:
-            return '({} -> {})'.format(self.argtypes[0], self.rettype)
+            return f'({self.argtypes[0]} -> {self.rettype})'
         else:
-            return '(({}) -> {})'.format(', '.join(map(str, self.argtypes)),
-                                         self.rettype)
+            return f"(({', '.join(map(str, self.argtypes))}) -> {self.rettype})"
 
     __repr__ = __str__
 
@@ -103,7 +102,7 @@ _typecounter = itertools.count(start=0)
 
 def _get_fresh_typename():
     """Creates a fresh typename that will be unique throughout the program."""
-    return 't{}'.format(next(_typecounter))
+    return f't{next(_typecounter)}'
 
 
 # This function is useful for determinism in tests.
@@ -128,10 +127,10 @@ def assign_typenames(node, symtab={}):
         if node.name in symtab:
             node._type = symtab[node.name]
         else:
-            raise TypingError('unbound name "{}"'.format(node.name))
+            raise TypingError(f'unbound name "{node.name}"')
     elif isinstance(node, ast.LambdaExpr):
         node._type = TypeVar(_get_fresh_typename())
-        local_symtab = dict()
+        local_symtab = {}
         for argname in node.argnames:
             typename = _get_fresh_typename()
             local_symtab[argname] = TypeVar(typename)
@@ -181,8 +180,7 @@ class TypeEquation:
         self.orig_node = orig_node
 
     def __str__(self):
-        return '{} :: {} [from {}]'.format(self.left,
-                                           self.right, self.orig_node)
+        return f'{self.left} :: {self.right} [from {self.orig_node}]'
 
     __repr__ = __str__
 
@@ -251,11 +249,10 @@ def unify(typ_x, typ_y, subst):
     elif isinstance(typ_x, FuncType) and isinstance(typ_y, FuncType):
         if len(typ_x.argtypes) != len(typ_y.argtypes):
             return None
-        else:
-            subst = unify(typ_x.rettype, typ_y.rettype, subst)
-            for i in range(len(typ_x.argtypes)):
-                subst = unify(typ_x.argtypes[i], typ_y.argtypes[i], subst)
-            return subst
+        subst = unify(typ_x.rettype, typ_y.rettype, subst)
+        for i in range(len(typ_x.argtypes)):
+            subst = unify(typ_x.argtypes[i], typ_y.argtypes[i], subst)
+        return subst
     else:
         return None
 
@@ -321,10 +318,7 @@ def apply_unifier(typ, subst):
     elif isinstance(typ, (BoolType, IntType)):
         return typ
     elif isinstance(typ, TypeVar):
-        if typ.name in subst:
-            return apply_unifier(subst[typ.name], subst)
-        else:
-            return typ
+        return apply_unifier(subst[typ.name], subst) if typ.name in subst else typ
     elif isinstance(typ, FuncType):
         newargtypes = [apply_unifier(arg, subst) for arg in typ.argtypes]
         return FuncType(newargtypes,

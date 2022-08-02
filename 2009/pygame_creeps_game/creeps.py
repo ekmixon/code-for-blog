@@ -102,7 +102,7 @@ class Creep(Sprite):
             # Maybe it's time to change the direction ?
             #
             self._compute_direction(time_passed)
-            
+
             # Make the creep image point in the correct direction.
             # Note that two images are used, one for diagonals
             # and one for horizontals/verticals.
@@ -119,7 +119,7 @@ class Creep(Sprite):
                     self.base_image_0, -self.direction.angle)
             else:
                 assert False
-            
+
             # Compute and apply the displacement to the position 
             # vector. The displacement is a vector, having the angle
             # of self.direction (which is normalized to not affect
@@ -128,21 +128,18 @@ class Creep(Sprite):
             displacement = vec2d(    
                 self.direction.x * self.speed * time_passed,
                 self.direction.y * self.speed * time_passed)
-            
+
             self.prev_pos = vec2d(self.pos)
             self.pos += displacement
-            
+
             # When the image is rotated, its size is changed.
             self.image_w, self.image_h = self.image.get_size()
-        
+
         elif self.state == Creep.EXPLODING:
             if self.explode_animation.active:
                 self.explode_animation.update(time_passed)
             else:
                 self._die()
-        
-        elif self.state == Creep.DEAD:
-            pass
         
     def draw(self):
         """ Blit the creep onto the screen that was provided in
@@ -158,7 +155,7 @@ class Creep(Sprite):
                 self.pos.x - self.image_w / 2, 
                 self.pos.y - self.image_h / 2)
             self.screen.blit(self.image, self.draw_rect)
-            
+
             # The health bar is 15x4 px.
             #
             health_bar_x = self.pos.x - 7
@@ -168,12 +165,9 @@ class Creep(Sprite):
             self.screen.fill(   Color('green'), 
                                 (   health_bar_x, health_bar_y, 
                                     self.health, 4))
-        
+
         elif self.state == Creep.EXPLODING:
             self.explode_animation.draw()
-        
-        elif self.state == Creep.DEAD:
-            pass
     
     def mouse_click_event(self, pos):
         """ The mouse was clicked in pos.
@@ -274,17 +268,14 @@ class GridPath(object):
         # If the next path for this coord is not cached, compute
         # it
         #
-        if not (coord in self._path_cache):
+        if coord not in self._path_cache:
             self._compute_path(coord)
-        
+
         # _compute_path adds the path for the coord to the cache.
         # If it's still not cached after the computation, it means
         # that no path exists to the goal from this coord.
         #
-        if coord in self._path_cache:
-            return self._path_cache[coord]
-        else:
-            return None
+        return self._path_cache[coord] if coord in self._path_cache else None
     
     def set_blocked(self, coord, blocked=True):
         """ Set the 'blocked' state of a coord
@@ -422,24 +413,18 @@ class Game(object):
     
     def create_walls(self):
         walls_list = []
-        
-        for r in range(0, 15):
+
+        for r in range(15):
             walls_list.append((r, 6))
-            
+
             if r != 7:
-                walls_list.append((r, 3))
-                walls_list.append((r, 4))
-            
+                walls_list.extend(((r, 3), (r, 4)))
             if r > 4:
                 walls_list.append((r, 1))
-        
-        for r in range(9, 20):
-            walls_list.append((r, 10))
-        
-        for c in range(14, 18):
-            walls_list.append((15, c))
-        
-        self.walls = dict().fromkeys(walls_list, True)
+
+        walls_list.extend((r, 10) for r in range(9, 20))
+        walls_list.extend((15, c) for c in range(14, 18))
+        self.walls = {}.fromkeys(walls_list, True)
     
     def next_on_path(self, coord):
         """ Given a coord, returns the next coord on the path to
@@ -528,18 +513,18 @@ class Game(object):
     
     def draw_walls(self):
         wallcolor = Color(140, 140, 140)
-        
+
+        radius = 3
+
         for wall in self.walls:
             nrow, ncol = wall
-            
+
             pos_x = self.field_rect.left + ncol * self.GRID_SIZE + self.GRID_SIZE / 2
             pos_y = self.field_rect.top + nrow * self.GRID_SIZE + self.GRID_SIZE / 2
-            radius = 3
-            
             pygame.draw.polygon(self.screen, wallcolor,
                 [   (pos_x - radius, pos_y), (pos_x, pos_y + radius),
                     (pos_x + radius, pos_y), (pos_x, pos_y - radius)])
-            
+
             if (nrow + 1, ncol) in self.walls:
                 pygame.draw.line(self.screen, wallcolor,
                     (pos_x, pos_y), (pos_x, pos_y + self.GRID_SIZE), 3)
@@ -574,7 +559,7 @@ class Game(object):
             time_passed = self.clock.tick(30)
             #~ time_passed = self.clock.tick()
             #~ print time_passed
-            
+
             # If too long has passed between two frames, don't
             # update (the game must have been suspended for some
             # reason, and we don't want it to "jump forward"
@@ -582,7 +567,7 @@ class Game(object):
             #
             if time_passed > 100:
                 continue
-            
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit()
@@ -596,21 +581,21 @@ class Game(object):
                         event.button == 1):
                     for creep in self.creeps:
                         creep.mouse_click_event(event.pos)
-            
+
             if not self.paused:
                 msg1 = 'Creeps: %d' % len(self.creeps)
                 msg2 = ''
 
                 self.mboard_text = [msg1, msg2]
-                
+
                 self.creep_spawn_timer.update(time_passed)
-                
+
                 # Update and all creeps
                 for creep in self.creeps:
                     creep.update(time_passed)
-                    
+
                 self.draw()
-                
+
             pygame.display.flip()
 
     def quit(self):

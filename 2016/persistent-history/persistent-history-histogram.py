@@ -61,7 +61,7 @@ def main():
     for cmd, _ in most_common_list:
         maxcmdlen = max(len(cmd), maxcmdlen)
     for cmd, count in most_common_list:
-        print(('%-' + str(maxcmdlen + 1) + 's: %s') % (cmd, count))
+        print(f'%-{str(maxcmdlen + 1)}s: %s' % (cmd, count))
 
 if __name__ == '__main__':
     main()

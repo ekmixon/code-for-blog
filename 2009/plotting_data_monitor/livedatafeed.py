@@ -30,6 +30,5 @@ class LiveDataFeed(object):
         return self.cur_data
 
 
-if __name__ == "__main__":
-    pass
+pass
 

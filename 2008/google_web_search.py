@@ -45,7 +45,7 @@ class GoogleWebSearch(object):
         # In order not to hang forever if the server doesn't reply
         #
         socket.setdefaulttimeout(5)
-        
+
         # You can insert your browser's header here, if you want
         # Find the header by placing:
         #   javascript:document.writeln(navigator.userAgent)
@@ -56,11 +56,11 @@ class GoogleWebSearch(object):
             'Mozilla/5.0',
             '(Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.1)',
             'Gecko/2008070208 Firefox/3.0.1'])
-        
+
         self.browser = mechanize.Browser()
         self.browser.addheaders = [('User-agent', browser_header)]
         self.browser.set_handle_robots(False)
-        
+
         self.result_page = ''
         
     def search(self, search_for, page=1):
@@ -68,10 +68,10 @@ class GoogleWebSearch(object):
             page. page must be >= 1
         """
         self.result_page = ''
-        
+
         assert page > 0
         start = (page - 1) * 10
-        
+
         query = urllib.urlencode(
             {
                 'q': search_for,
@@ -80,26 +80,29 @@ class GoogleWebSearch(object):
                 'sa': 'N',
             }            
         )
-        
+
         base = 'http://www.google.com/search?'
         query_url = base + query
 
-        logging.info('Executing: ' + query_url)
+        logging.info(f'Executing: {query_url}')
 
         self.browser.open(query_url)
         self.result_page = self.browser.response().read()
 
     def get_result_count(self):
         soup = BeautifulSoup(self.result_page)
-        
+
         ssb = soup.findAll('div', attrs={'id': 'ssb'})
         lines = ssb[0].p.contents
-        
-        for i in xrange(len(lines)):
-            if lines[i].find('about') > 0 and i < len(lines) - 1:
-                return int(lines[i + 1].contents[0].replace(',', ''))
-                
-        return 0
+
+        return next(
+            (
+                int(lines[i + 1].contents[0].replace(',', ''))
+                for i in xrange(len(lines))
+                if lines[i].find('about') > 0 and i < len(lines) - 1
+            ),
+            0,
+        )
 
     def get_result_urls(self):
         soup = BeautifulSoup(self.result_page)

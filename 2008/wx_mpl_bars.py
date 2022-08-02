@@ -214,7 +214,7 @@ class BarsFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.canvas.print_figure(path, dpi=self.dpi)
-            self.flash_status_message("Saved to %s" % path)
+            self.flash_status_message(f"Saved to {path}")
 
     def on_exit(self, event):
         self.Destroy()

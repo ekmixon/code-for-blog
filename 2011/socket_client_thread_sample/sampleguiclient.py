@@ -104,13 +104,13 @@ class SampleGUIClientWindow(QMainWindow):
         try:
             reply = self.client.reply_q.get(block=False)
             status = "SUCCESS" if reply.type == ClientReply.SUCCESS else "ERROR"
-            self.log('Client reply %s: %s' % (status, reply.data))
+            self.log(f'Client reply {status}: {reply.data}')
         except Queue.Empty:
             pass
 
     def log(self, msg):
         timestamp = '[%010.3f]' % time.clock()
-        self.log_widget.append(timestamp + ' ' + str(msg))
+        self.log_widget.append(f'{timestamp} {str(msg)}')
 
 
 

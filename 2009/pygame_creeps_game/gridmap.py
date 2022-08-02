@@ -14,7 +14,7 @@ class GridMap(object):
         self.nrows = nrows
         self.ncols = ncols
 
-        self.map = [[0] * self.ncols for i in range(self.nrows)]
+        self.map = [[0] * self.ncols for _ in range(self.nrows)]
         self.blocked = defaultdict(lambda: False)
 
     def set_blocked(self, coord, blocked=True):
@@ -25,9 +25,8 @@ class GridMap(object):
 
         if blocked:
             self.blocked[coord] = True
-        else:
-            if coord in self.blocked:
-                del self.blocked[coord]
+        elif coord in self.blocked:
+            del self.blocked[coord]
 
     def move_cost(self, c1, c2):
         """ Compute the cost of movement from one coordinate to

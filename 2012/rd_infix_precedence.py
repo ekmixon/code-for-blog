@@ -45,7 +45,7 @@ class Tokenizer(object):
                 yield Tok('BINOP', operator)
 
     def __repr__(self):
-        return 'Tokenizer(cur_token=%s)' % str(self.cur_token)
+        return f'Tokenizer(cur_token={str(self.cur_token)})'
 
 
 

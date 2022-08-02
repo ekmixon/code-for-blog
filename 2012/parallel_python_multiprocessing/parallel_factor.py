@@ -21,8 +21,8 @@ class Timer(object):
 
     def __exit__(self, type, value, traceback):
         if self.name:
-            print('[%s]' % self.name, end=' ')
-        print('Elapsed: %s' % (time.time() - self.tstart))
+            print(f'[{self.name}]', end=' ')
+        print(f'Elapsed: {time.time() - self.tstart}')
 
 
 def factorize_naive(n):
@@ -96,9 +96,7 @@ def mp_worker(nums, out_q):
         list of numbers to factor. The results are placed in
         a dictionary that's pushed to a queue.
     """
-    outdict = {}
-    for n in nums:
-        outdict[n] = factorize_naive(n)
+    outdict = {n: factorize_naive(n) for n in nums}
     out_q.put(outdict)
 
 
@@ -121,8 +119,8 @@ def mp_factorizer(nums, nprocs):
     # Collect all results into a single result dict. We know how many dicts
     # with results to expect.
     resultdict = {}
-    for i in range(nprocs):
-        resultdict.update(out_q.get())
+    for _ in range(nprocs):
+        resultdict |= out_q.get()
 
     # Wait for all worker processes to finish
     for p in procs:
@@ -137,10 +135,10 @@ def benchmark(nums):
         s_d = serial_factorizer(nums)
 
     for numparallel in [2, 4, 8]:
-        with Timer('threaded %s' % numparallel):
+        with Timer(f'threaded {numparallel}'):
             t_d = threaded_factorizer(nums, numparallel)
 
-        with Timer('mp %s' % numparallel):
+        with Timer(f'mp {numparallel}'):
             m_d = mp_factorizer(nums, numparallel)
 
     assert s_d == t_d == m_d, "results agree"
@@ -162,8 +160,6 @@ if __name__ == '__main__':
     N = 299
 
     nums = [999999999999]
-    for i in range(N):
-        nums.append(nums[-1] + 2)
-
+    nums.extend(nums[-1] + 2 for _ in range(N))
     test()
     benchmark(nums)

@@ -101,28 +101,24 @@ class TermParser:
             # Var.
             idtok = self.cur_token
             self._get_next_token()
-            if self.cur_token.type == 'LP':
-                if idtok.val.isupper():
-                    self._error("Function names should be constant")
-                self._get_next_token()
-                args = []
-                while True:
-                    args.append(self.parse_term())
-                    if self.cur_token.type == 'RP':
-                        break
-                    elif self.cur_token.type == 'COMMA':
-                        # Consume the comma and continue to the next arg
-                        self._get_next_token()
-                    else:
-                        self._error("Expected ',' or ')' in application")
-                # Consume the ')'
-                self._get_next_token()
-                return App(fname=idtok.val, args=args)
-            else:
-                if idtok.val.isupper():
-                    return Var(idtok.val)
+            if self.cur_token.type != 'LP':
+                return Var(idtok.val) if idtok.val.isupper() else Const(idtok.val)
+            if idtok.val.isupper():
+                self._error("Function names should be constant")
+            self._get_next_token()
+            args = []
+            while True:
+                args.append(self.parse_term())
+                if self.cur_token.type == 'RP':
+                    break
+                elif self.cur_token.type == 'COMMA':
+                    # Consume the comma and continue to the next arg
+                    self._get_next_token()
                 else:
-                    return Const(idtok.val)
+                    self._error("Expected ',' or ')' in application")
+            # Consume the ')'
+            self._get_next_token()
+            return App(fname=idtok.val, args=args)
 
 
 def occurs_check(v, term, subst):
@@ -160,10 +156,9 @@ def unify(x, y, subst):
     elif isinstance(x, App) and isinstance(y, App):
         if x.fname != y.fname or len(x.args) != len(y.args):
             return None
-        else:
-            for i in range(len(x.args)):
-                subst = unify(x.args[i], y.args[i], subst)
-            return subst
+        for i in range(len(x.args)):
+            subst = unify(x.args[i], y.args[i], subst)
+        return subst
     else:
         return None
 
@@ -181,10 +176,7 @@ def apply_unifier(x, subst):
     elif isinstance(x, Const):
         return x
     elif isinstance(x, Var):
-        if x.name in subst:
-            return apply_unifier(subst[x.name], subst)
-        else:
-            return x
+        return apply_unifier(subst[x.name], subst) if x.name in subst else x
     elif isinstance(x, App):
         newargs = [apply_unifier(arg, subst) for arg in x.args]
         return App(x.fname, newargs)

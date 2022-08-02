@@ -30,12 +30,10 @@ class _MultiMethod:
         try:
             return self.typemap[types](*args)
         except KeyError:
-            raise TypeError('no match %s for types %s' % (self.name, types))
+            raise TypeError(f'no match {self.name} for types {types}')
 
     def register_function_for_types(self, types, function):
-        types_with_subclasses = []
-        for ty in types:
-            types_with_subclasses.append([ty] + all_subclasses(ty))
+        types_with_subclasses = [[ty] + all_subclasses(ty) for ty in types]
         for type_tuple in itertools.product(*types_with_subclasses):
             # Here we explicitly support overriding the registration, so that
             # more specific dispatches can override earlier-defined generic
@@ -77,15 +75,15 @@ class Triangle(Shape): pass
 # The most generic dispatches have to come first.
 @multimethod(Shape, Shape)
 def intersect(s1, s2):
-    print('Shape x Shape [names s1=%s, s2=%s]' % (s1.name, s2.name))
+    print(f'Shape x Shape [names s1={s1.name}, s2={s2.name}]')
 
 @multimethod(Rectangle, Ellipse)
 def intersect(r, e):
-    print('Rectangle x Ellipse [names r=%s, e=%s]' % (r.name, e.name))
+    print(f'Rectangle x Ellipse [names r={r.name}, e={e.name}]')
 
 @multimethod(Rectangle, Rectangle)
 def intersect(r1, r2):
-    print('Rectangle x Rectangle [names r1=%s, r2=%s]' % (r1.name, r2.name))
+    print(f'Rectangle x Rectangle [names r1={r1.name}, r2={r2.name}]')
 
 
 if __name__ == '__main__':

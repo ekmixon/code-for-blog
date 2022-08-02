@@ -99,9 +99,8 @@ class ProtocolStateRecursive:
         byte = self.input_feed()
         if byte is None:
             return
-        else:
-            self.frame.append(byte)
-            self.state_in_msg()
+        self.frame.append(byte)
+        self.state_in_msg()
 
 
 if __name__ == "__main__":
@@ -124,10 +123,9 @@ if __name__ == "__main__":
         global byteptr
         if byteptr >= len(bytes):
             return None
-        else:
-            nextbyte = bytes[byteptr]
-            byteptr += 1
-            return nextbyte
+        nextbyte = bytes[byteptr]
+        byteptr += 1
+        return nextbyte
 
     def frame_callback(frame):
         print('Callback got frame:', codecs.encode(frame, 'hex'))

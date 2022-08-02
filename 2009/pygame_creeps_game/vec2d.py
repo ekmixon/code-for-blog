@@ -8,7 +8,7 @@ class vec2d(object):
     __slots__ = ['x', 'y']
 
     def __init__(self, x_or_pair, y = None):
-        if y == None:
+        if y is None:
             self.x = x_or_pair[0]
             self.y = x_or_pair[1]
         else:
@@ -24,7 +24,7 @@ class vec2d(object):
         elif key == 1:
             return self.y
         else:
-            raise IndexError("Invalid subscript "+str(key)+" to vec2d")
+            raise IndexError(f"Invalid subscript {str(key)} to vec2d")
 
     def __setitem__(self, key, value):
         if key == 0:
@@ -32,11 +32,11 @@ class vec2d(object):
         elif key == 1:
             self.y = value
         else:
-            raise IndexError("Invalid subscript "+str(key)+" to vec2d")
+            raise IndexError(f"Invalid subscript {str(key)} to vec2d")
 
     # String representaion (for debugging)
     def __repr__(self):
-        return 'vec2d(%s, %s)' % (self.x, self.y)
+        return f'vec2d({self.x}, {self.y})'
 
     # Comparison
     def __eq__(self, other):
@@ -278,9 +278,7 @@ class vec2d(object):
 
     def normalized(self):
         length = self.length
-        if length != 0:
-            return self/length
-        return vec2d(self)
+        return self/length if length != 0 else vec2d(self)
 
     def normalize_return_length(self):
         length = self.length
@@ -294,9 +292,7 @@ class vec2d(object):
 
     def perpendicular_normal(self):
         length = self.length
-        if length != 0:
-            return vec2d(-self.y/length, self.x/length)
-        return vec2d(self)
+        return vec2d(-self.y/length, self.x/length) if length != 0 else vec2d(self)
 
     def dot(self, other):
         return float(self.x*other[0] + self.y*other[1])
@@ -423,8 +419,8 @@ if __name__ == "__main__":
             zero_vec = vec2d(0, 0)
             self.assert_(int_vec == flt_vec)
             self.assert_(int_vec != zero_vec)
-            self.assert_((flt_vec == zero_vec) == False)
-            self.assert_((flt_vec != int_vec) == False)
+            self.assert_(flt_vec != zero_vec)
+            self.assert_(flt_vec == int_vec)
             self.assert_(int_vec == (3, -2))
             self.assert_(int_vec != [0, 0])
             self.assert_(int_vec != 5)

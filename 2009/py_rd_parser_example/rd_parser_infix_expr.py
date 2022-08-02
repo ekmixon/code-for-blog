@@ -77,8 +77,10 @@ class CalcParser(object):
         val = self._stmt()
 
         if self.cur_token.type != None:
-            self._error('Unexpected token %s (at #%s)' % (
-                self.cur_token.val, self.cur_token.pos))
+            self._error(
+                f'Unexpected token {self.cur_token.val} (at #{self.cur_token.pos})'
+            )
+
 
         return val
 
@@ -144,8 +146,7 @@ class CalcParser(object):
             self._get_next_token()
             return val
         else:
-            self._error('Unmatched %s (found %s)' % (
-                type, self.cur_token.type))
+            self._error(f'Unmatched {type} (found {self.cur_token.type})')
 
     # The toplevel rule of the parser.
     #
@@ -191,11 +192,10 @@ class CalcParser(object):
             with self._syntax_check():
                 self._stmt()
 
-            if self.cur_token.type == 'ELSE':
-                self._match('ELSE')
-                return self._stmt()
-            else:
+            if self.cur_token.type != 'ELSE':
                 return None
+            self._match('ELSE')
+            return self._stmt()
 
     # <assign_stmt> : set <id> = <infix_expr>
     #
@@ -231,10 +231,9 @@ class CalcParser(object):
     def _infix_eval(self):
         """ Run the infix evaluator and return the result.
         """
-        self.op_stack = []
         self.res_stack = []
 
-        self.op_stack.append(self._sentinel)
+        self.op_stack = [self._sentinel]
         self._infix_eval_expr()
         return self.res_stack[-1]
 
@@ -274,7 +273,7 @@ class CalcParser(object):
             return False
 
         def __repr__(self):
-            return '<%s(%s)>' % (self.name, self.prec)
+            return f'<{self.name}({self.prec})>'
 
     # The operators recognized by the evaluator.
     #
@@ -339,7 +338,7 @@ class CalcParser(object):
             self._match(')')
             self.op_stack.pop()
         elif self.cur_token.type in self._unaries:
-            self._push_op(self._ops['u' + self.cur_token.type])
+            self._push_op(self._ops[f'u{self.cur_token.type}'])
             self._get_next_token()
             self._infix_eval_atom()
 
@@ -367,7 +366,7 @@ class CalcParser(object):
             self.res_stack.append(top_op.apply(self.res_stack.pop()))
         else:
             if len(self.res_stack) < 2:
-                self._error('Not enough arguments for operator %s' % top_op.name)
+                self._error(f'Not enough arguments for operator {top_op.name}')
 
             t1 = self.res_stack.pop()
             t0 = self.res_stack.pop()
@@ -382,12 +381,11 @@ class CalcParser(object):
         elif tok.type == 'IDENTIFIER':
             if self.only_syntax_check:
                 return 0
-            else:
-                try:
-                    val = self.var_table[tok.val]
-                except KeyError:
-                    self._error('Unknown identifier `%s`' % tok.val)
-                return val
+            try:
+                val = self.var_table[tok.val]
+            except KeyError:
+                self._error(f'Unknown identifier `{tok.val}`')
+            return val
         else:
             assert 0
 

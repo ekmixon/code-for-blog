@@ -128,9 +128,9 @@ class TestProtocolWrapper(unittest.TestCase):
 
     def test_roundtrip(self):
         pw = ProtocolWrapper(after_dle_func=lambda x: chr(ord(x) ^ 1))
-        for i in xrange(100):
+        for _ in xrange(100):
             msglen = random.randint(1, 200)
-            msg = a2s(random.randint(0, 255) for l in xrange(msglen))
+            msg = a2s(random.randint(0, 255) for _ in xrange(msglen))
             wrapped = pw.wrap(msg)
             for b in wrapped: pw.input(b)
             self.assertEqual(pw.last_message, msg)

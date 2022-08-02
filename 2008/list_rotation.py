@@ -14,7 +14,7 @@ def rotate_naive(lst, dist):
     """ A 'naive' (space inefficient) rotation function.
         The slice operations create new lists.
     """
-    lst[:] = lst[dist:len(lst)] + lst[0:dist]
+    lst[:] = lst[dist:] + lst[:dist]
 
 
 def gcd(a, b):
@@ -30,7 +30,7 @@ def rotate_juggle(lst, dist):
     """ An iterative 'juggle' method
     """
     n = len(lst)
-        
+
     for i in xrange(gcd(dist, n)):
         t = lst[i]
         j = i
@@ -57,12 +57,12 @@ def rotate_swap(lst, dist):
     """ A 'recursive' sub-list swapping method.        
     """
     n = len(lst)
-    
-    if dist == 0 or dist == n:
+
+    if dist in [0, n]:
         return
     i = p = dist
     j = n - p
-    
+
     while i != j:
         if i > j:
             sublist_swap(lst, p - i, p, j)
@@ -70,7 +70,7 @@ def rotate_swap(lst, dist):
         else:
             sublist_swap(lst, p - i, p + j - i, i)
             j -= i
-    
+
     sublist_swap(lst, p - i, p, i)
 
 

@@ -124,8 +124,10 @@ class CalcParser(object):
         val = self._stmt()
 
         if self.cur_token.type != None:
-            self._error('Unexpected token %s (at #%s)' % (
-                self.cur_token.val, self.cur_token.pos))
+            self._error(
+                f'Unexpected token {self.cur_token.val} (at #{self.cur_token.pos})'
+            )
+
 
         return val
 
@@ -191,8 +193,7 @@ class CalcParser(object):
             self._get_next_token()
             return val
         else:
-            self._error('Unmatched %s (found %s)' % (
-                type, self.cur_token.type))
+            self._error(f'Unmatched {type} (found {self.cur_token.type})')
 
     # The toplevel rule of the parser.
     #
@@ -238,11 +239,10 @@ class CalcParser(object):
             with self._syntax_check():
                 self._stmt()
 
-            if self.cur_token.type == 'ELSE':
-                self._match('ELSE')
-                return self._stmt()
-            else:
+            if self.cur_token.type != 'ELSE':
                 return None
+            self._match('ELSE')
+            return self._stmt()
 
     # <assign_stmt> : set <id> = <cmp_expr>
     #
@@ -399,19 +399,15 @@ class CalcParser(object):
         elif self.cur_token.type == 'IDENTIFIER':
             id_name = self._match('IDENTIFIER')
 
-            # When syntax checking, we don't care if the variable
-            # was defined prior to use
-            #
             if self.only_syntax_check:
                 return 0
-            else:
-                try:
-                    val = self.var_table[id_name]
-                except KeyError:
-                    self._error('Unknown identifier `%s`' % id_name)
-                return val
+            try:
+                val = self.var_table[id_name]
+            except KeyError:
+                self._error(f'Unknown identifier `{id_name}`')
+            return val
         else:
-            self._error('Invalid factor `%s`' % self.cur_token.val)
+            self._error(f'Invalid factor `{self.cur_token.val}`')
 
 
 def calculator_prompt():

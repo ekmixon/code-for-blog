@@ -111,10 +111,10 @@ def test_main():
 
     # Generate some pseudo-random numbers, with guaranteed repetition to hit
     # the caches.
-    nums = [random.randint(20, 1990) // 2 for i in range(8)]
-    nums.extend(nums[0:2])
+    nums = [random.randint(20, 1990) // 2 for _ in range(8)]
+    nums.extend(nums[:2])
 
-    for i in range(args.num_clients):
+    for _ in range(args.num_clients):
         tester_thread = threading.Thread(
             target=client_thread_runner,
             args=(PORTNUM, nums))

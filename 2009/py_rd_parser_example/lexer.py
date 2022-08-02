@@ -21,7 +21,7 @@ class Token(object):
         self.pos = pos
 
     def __str__(self):
-        return '%s(%s) at %s' % (self.type, self.val, self.pos)
+        return f'{self.type}({self.val}) at {self.pos}'
 
 
 class LexerError(Exception):
@@ -54,22 +54,13 @@ class Lexer(object):
                 specify your rules for whitespace, or it will be
                 flagged as an error.
         """
-        # All the regexes are concatenated into a single one
-        # with named groups. Since the group names must be valid
-        # Python identifiers, but the token types used by the
-        # user are arbitrary strings, we auto-generate the group
-        # names and map them to token types.
-        #
-        idx = 1
         regex_parts = []
         self.group_type = {}
 
-        for regex, type in rules:
-            groupname = 'GROUP%s' % idx
-            regex_parts.append('(?P<%s>%s)' % (groupname, regex))
+        for idx, (regex, type) in enumerate(rules, start=1):
+            groupname = f'GROUP{idx}'
+            regex_parts.append(f'(?P<{groupname}>{regex})')
             self.group_type[groupname] = type
-            idx += 1
-
         self.regex = re.compile('|'.join(regex_parts))
         self.skip_whitespace = skip_whitespace
         self.re_ws_skip = re.compile('\S')
@@ -90,25 +81,21 @@ class Lexer(object):
         """
         if self.pos >= len(self.buf):
             return None
-        else:
-            if self.skip_whitespace:
-                m = self.re_ws_skip.search(self.buf[self.pos:])
+        if self.skip_whitespace:
+            if m := self.re_ws_skip.search(self.buf[self.pos :]):
+                self.pos += m.start()
+            else:
+                return None
 
-                if m:
-                    self.pos += m.start()
-                else:
-                    return None
+        if m := self.regex.match(self.buf[self.pos :]):
+            groupname = m.lastgroup
+            tok_type = self.group_type[groupname]
+            tok = Token(tok_type, m.group(groupname), self.pos)
+            self.pos += m.end()
+            return tok
 
-            m = self.regex.match(self.buf[self.pos:])
-            if m:
-                groupname = m.lastgroup
-                tok_type = self.group_type[groupname]
-                tok = Token(tok_type, m.group(groupname), self.pos)
-                self.pos += m.end()
-                return tok
-
-            # if we're here, no rule matched
-            raise LexerError(self.pos)
+        # if we're here, no rule matched
+        raise LexerError(self.pos)
 
     def tokens(self):
         """ Returns an iterator to the tokens found in the buffer.

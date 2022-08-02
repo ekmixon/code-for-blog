@@ -43,8 +43,13 @@ def htmlize(post, db, plugins=[]):
         if match is None:
             parts.append(contents[pos:])
             break
-        parts.append(contents[pos:match.start()])
-        parts.append(RoleMatch(match.group(1), match.group(2)))
+        parts.extend(
+            (
+                contents[pos : match.start()],
+                RoleMatch(match.group(1), match.group(2)),
+            )
+        )
+
         pos = match.end()
 
     # Ask plugins to act on roles
@@ -57,8 +62,7 @@ def htmlize(post, db, plugins=[]):
     # contents.
     contents = ''.join(parts)
     for p in plugins:
-        contents_hook = p.get_contents_hook()
-        if contents_hook:
+        if contents_hook := p.get_contents_hook():
             contents = contents_hook(contents)
 
     return contents
@@ -68,8 +72,7 @@ def _plugin_replace_role(name, contents, plugins):
     """ The first plugin that handles this role is used.
     """
     for p in plugins:
-        role_hook = p.get_role_hook(name)
-        if role_hook:
+        if role_hook := p.get_role_hook(name):
             return role_hook(contents)
     # If no plugin handling this role is found, return its original form
     return ':{0}:`{1}`'.format(name, contents)

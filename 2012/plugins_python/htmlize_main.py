@@ -22,10 +22,12 @@ if __name__ == '__main__':
     contents = sys.stdin.read()
     db = DB()
     post = db.create_new_post(
-                author='eliben',
-                date=datetime.today(),
-                title='Hello world',
-                contents=contents)
+        author='eliben',
+        date=datetime.now(),
+        title='Hello world',
+        contents=contents,
+    )
+
 
     print(htmlize(post, db, plugins))
 

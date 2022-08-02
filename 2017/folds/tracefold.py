@@ -28,8 +28,12 @@ class TraceCalls(object):
         def wrapper(*args, **kwargs):
             indent = ' ' * TraceCalls.cur_indent
             argstr = ', '.join(
-                [repr(a) for a in args] +
-                ["%s=%s" % (a, repr(b)) for a, b in kwargs.items()])
+                (
+                    [repr(a) for a in args]
+                    + [f"{a}={repr(b)}" for a, b in kwargs.items()]
+                )
+            )
+
             self.stream.write('%s%s(%s)\n' % (indent, fn.__name__, argstr))
 
             TraceCalls.cur_indent += self.indent_step
@@ -39,23 +43,18 @@ class TraceCalls(object):
             if self.show_ret:
                 self.stream.write('%s--> %s\n' % (indent, ret))
             return ret
+
         return wrapper
 
 
 @TraceCalls(show_ret=True)
 def foldr(func, init, seq):
-    if not seq:
-        return init
-    else:
-        return func(seq[0], foldr(func, init, seq[1:]))
+    return func(seq[0], foldr(func, init, seq[1:])) if seq else init
 
 
 @TraceCalls(show_ret=True)
 def foldl(func, init, seq):
-    if not seq:
-        return init
-    else:
-        return foldl(func, func(init, seq[0]), seq[1:])
+    return foldl(func, func(init, seq[0]), seq[1:]) if seq else init
 
 
 @TraceCalls(show_ret=True)

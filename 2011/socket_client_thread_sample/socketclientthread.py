@@ -144,4 +144,3 @@ if __name__ == "__main__":
     sct.cmd_q.put(ClientCommand(ClientCommand.CLOSE))
     reply = sct.reply_q.get(True)
     print(reply.type, reply.data)
-    pass

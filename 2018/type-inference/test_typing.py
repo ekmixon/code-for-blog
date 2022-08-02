@@ -26,10 +26,7 @@ class TestGenerateEquations(unittest.TestCase):
 
         left and right are given in string representations.
         """
-        for e in eqs:
-            if str(e.left) == left and str(e.right) == right:
-                return True
-        return False
+        return any(str(e.left) == left and str(e.right) == right for e in eqs)
 
     def setUp(self):
         reset_type_counter()

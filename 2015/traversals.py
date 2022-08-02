@@ -63,8 +63,9 @@ def dfs(graph, root, visitor):
         visited.add(node)
         visitor(node)
         for succ in graph.successors(node):
-            if not succ in visited:
+            if succ not in visited:
                 dfs_walk(succ)
+
     dfs_walk(root)
 
 
@@ -75,9 +76,10 @@ def postorder(graph, root):
     def dfs_walk(node):
         visited.add(node)
         for succ in graph.successors(node):
-            if not succ in visited:
+            if succ not in visited:
                 dfs_walk(succ)
         order.append(node)
+
     dfs_walk(root)
     return order
 
@@ -95,9 +97,10 @@ def postorder_unrooted(graph):
     def dfs_walk(node):
         visited.add(node)
         for succ in graph.successors(node):
-            if not succ in visited:
+            if succ not in visited:
                 dfs_walk(succ)
         orders[-1].append(node)
+
     while len(allnodes) > len(visited):
         # While there are still unvisited nodes in the graph, pick one at random
         # and restart the traversal from it.
